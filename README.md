@@ -1,1 +1,2 @@
-# petty little scripts for use on Solaris
+# solaris scripts
+scripts to automate small tasks
