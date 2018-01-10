@@ -2,14 +2,14 @@
 ### current date for tmp file name
 CURDATE=`date +%y%m%d-%H%MA`
 ### edit array to reflect nfs mount locations
-NFSMOUNT=( "/path/1" "/path/2" "/path/3" )
+NFSMOUNT=( "/path/1" "/path/2" )
 ### stat each location and verify mounted
 for i in "${NFSMOUNT[@]}"
     do
         if [[ -z $(timeout -k 15s 10s stat -t $i 2>&-) ]]; then
             echo "stat command for $i failed!" >> /tmp/nfs_fail_$CURDATE.txt
         else
-            if [[ -z $(timeout -k 15s 10s df -h | awk '{print $6}' | grep -w $i 2>&-) ]]; then
+            if [[ -z $(mount | awk '{print $1}' | grep $i) ]]; then
                 echo "$i is not mounted!" >> /tmp/nfs_fail_$CURDATE.txt
             fi
         fi
