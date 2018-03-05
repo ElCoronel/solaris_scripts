@@ -3,9 +3,20 @@
 HOSTLIST=$HOME/etc/remote_hosts.list
 DATE=`date '+%m%d%Y-%H%M'`
 if [ $# -eq 0 ]; then
-        echo "Usage: ./list_users.sh <global zone name>|all"
+        echo "Usage: ./list_users.sh <all|danny|greg> <all|list of global zones>"
         exit 1
 fi
+if [[ $1 == "all" ]]; then
+        EADDR="someone@somewhere"
+elif [[ $1 == "danny" ]]; then
+        EADDR="someone@somewhere"
+elif [[ $1 == "greg" ]]; then
+        EADDR="someone@somewhere"
+else
+        echo"Usage: ./list_users.sh <all|danny|greg> <all|list of global zones>"
+        exit 1
+fi
+shift
 ZARRAY=( "$@" )
 ### spell check
 for s in "${ZARRAY[@]}"; do
@@ -20,13 +31,17 @@ if [ "${ZARRAY[0]}" = "all" ]; then
                 REMHOST=`cat $HOSTLIST | grep $i | awk '{print $2}'`
                 echo "$HOME/temp/$REMHOST-global-$DATE-list.tmp" > "$HOME/temp/$REMHOST-users-out.list.tmp"
                 echo -ne "------------\n$REMHOST\n------------\n" > "$HOME/temp/$REMHOST-global-$DATE-list.tmp"
-                ssh rmtmon@$i cat /etc/passwd | awk -F: '{print $1}' >> "$HOME/temp/$REMHOST-global-$DATE-list.tmp"
+                ssh rmtmon@$i cat /etc/passwd | awk -F: '{print $1}' | sort >> "$HOME/temp/$REMHOST-global-$DATE-list.tmp"
                 ssh rmtmon@$i /usr/sbin/zoneadm list | grep -v global > $HOME/temp/zones.tmp
                 for z in `cat $HOME/temp/zones.tmp`; do
                         echo "$HOME/temp/$REMHOST-$z-$DATE-list.tmp" >> "$HOME/temp/$REMHOST-users-out.list.tmp"
                         echo -ne "-----------------\n$z\n-----------------\n" > "$HOME/temp/$REMHOST-$z-$DATE-list.tmp"
-                        ssh rmtmon@$i sudo /usr/sbin/zlogin $z 'cat /etc/passwd' | awk -F: '{print $1}' >> "$HOME/temp/$REMHOST-$z-$DATE-list.tmp"
+                        ssh rmtmon@$i sudo /usr/sbin/zlogin $z 'cat /etc/passwd' | awk -F: '{print $1}' | sort >> "$HOME/temp/$REMHOST-$z-$DATE-list.tmp"
                         sleep 2
+                done
+                for l in `cat $HOME/etc/sysaccnts.list`; do
+                        /usr/gnu/bin/sed -i "s/$l//g" $HOME/temp/$REMHOST*$DATE-list.tmp
+                        /usr/gnu/bin/sed -i  '/^\s*$/d' $HOME/temp/$REMHOST*$DATE-list.tmp
                 done
                 mapfile -t < $HOME/temp/$REMHOST-users-out.list.tmp
                 paste "${MAPFILE[@]}" | column -s $'\t' -t >> "$HOME/temp/$REMHOST-combined-users-list.txt"
@@ -42,13 +57,17 @@ else
                 REMHOST=`cat $HOSTLIST | grep $a | awk '{print $2}'`
                 echo "$HOME/temp/$REMHOST-global-$DATE-list.tmp" > "$HOME/temp/$REMHOST-users-out.list.tmp"
                 echo -ne "------------\n$REMHOST\n------------\n" > "$HOME/temp/$REMHOST-global-$DATE-list.tmp"
-                ssh rmtmon@$GHOST cat /etc/passwd | awk -F: '{print $1}' >> "$HOME/temp/$REMHOST-global-$DATE-list.tmp"
+                ssh rmtmon@$GHOST cat /etc/passwd | awk -F: '{print $1}' | sort >> "$HOME/temp/$REMHOST-global-$DATE-list.tmp"
                 ssh rmtmon@$GHOST /usr/sbin/zoneadm list | grep -v global > $HOME/temp/zones.tmp
                 for z in `cat $HOME/temp/zones.tmp`; do
                         echo "$HOME/temp/$REMHOST-$z-$DATE-list.tmp" >> "$HOME/temp/$REMHOST-users-out.list.tmp"
                         echo -ne "-----------------\n$z\n-----------------\n" > "$HOME/temp/$REMHOST-$z-$DATE-list.tmp"
-                        ssh rmtmon@$GHOST sudo /usr/sbin/zlogin $z 'cat /etc/passwd' | awk -F: '{print $1}' >> "$HOME/temp/$REMHOST-$z-$DATE-list.tmp"
+                        ssh rmtmon@$GHOST sudo /usr/sbin/zlogin $z 'cat /etc/passwd' | awk -F: '{print $1}' | sort >> "$HOME/temp/$REMHOST-$z-$DATE-list.tmp"
                         sleep 2
+                done
+                for l in `cat $HOME/etc/sysaccnts.list`; do
+                        /usr/gnu/bin/sed -i "s/$l//g" $HOME/temp/$REMHOST*$DATE-list.tmp
+                        /usr/gnu/bin/sed -i  '/^\s*$/d' $HOME/temp/$REMHOST*$DATE-list.tmp
                 done
                 mapfile -t < $HOME/temp/$REMHOST-users-out.list.tmp
                 paste "${MAPFILE[@]}" | column -s $'\t' -t >> "$HOME/temp/$REMHOST-combined-users-list.txt"
@@ -69,7 +88,7 @@ for i in `find $HOME/temp -type f | grep "combined-users-list.txt"`
 ### combine body and attachments so we can use mailx
 cat $HOME/temp/users-body.tmp $HOME/temp/users-multi_attachment.tmp > $HOME/temp/users-combined.tmp
 ### send the email
-cat $HOME/temp/users-combined.tmp | mailx -s "Users Lists" someone@somewhere
+cat $HOME/temp/users-combined.tmp | mailx -s "Users Lists" $EADDR
 ### clean up the temp files
 rm -rf $HOME/temp/users-body.tmp $HOME/temp/users-combined.tmp $HOME/temp/users-multi_attachment.tmp
 rm -rf $HOME/temp/*users*
