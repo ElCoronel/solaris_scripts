@@ -3,14 +3,14 @@
 HOSTLIST=$HOME/etc/remote_hosts.list
 DATE=`date '+%m%d%Y-%H%M'`
 if [ $# -eq 0 ]; then
-        echo "Usage: ./list_users.sh <all|danny|greg> <all|list of global zones>"
+        echo "Usage: ./list_users.sh <all|name1|name2> <all|list of global zones>"
         exit 1
 fi
 if [[ $1 == "all" ]]; then
         EADDR="someone@somewhere"
-elif [[ $1 == "danny" ]]; then
+elif [[ $1 == "name1" ]]; then
         EADDR="someone@somewhere"
-elif [[ $1 == "greg" ]]; then
+elif [[ $1 == "name2" ]]; then
         EADDR="someone@somewhere"
 else
         echo"Usage: ./list_users.sh <all|danny|greg> <all|list of global zones>"
