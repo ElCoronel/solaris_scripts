@@ -1,7 +1,7 @@
 #! /usr/bin/bash
 ## finds 10 largest files in filesystem provided as arguments
 ## usage file_cleanup_finder.sh <save|silent> <some filesystem> <some filesystem> ...
-## if save or silent is not provided it assumed just screen output and no file save
+## if save or silent is not provided it assumes just screen output and no file save
 IFS=$'\n'
 RDATE=`date '+%m%d%Y-%H%M-%s'`
 if [ $# -eq 0 ]; then
