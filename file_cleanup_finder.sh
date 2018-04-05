@@ -11,11 +11,23 @@ fi
 ZARRAY=( "$@" )
 if [[ $1 =~ ^(save|silent)$ ]]; then
     for f in "${ZARRAY[@]:1}"; do
-        /usr/gnu/bin/find $f -type f -print0 | /usr/gnu/bin/xargs -0 /usr/gnu/bin/du | sort -n | tail -10 | cut -f2 >> /tmp/file_cleanup_finder.list
+        if [[ ! $(ls $f 2>/dev/null) ]]; then
+            echo "$f is not a valid path. Exiting."
+             rm -rf /tmp/file_cleanup_finder.list
+            exit 1
+        else
+            /usr/gnu/bin/find $f -type f -print0 | /usr/gnu/bin/xargs -0 /usr/gnu/bin/du | sort -n | tail -10 | cut -f2 >> /tmp/file_cleanup_finder.list
+        fi
     done
 else
     for f in "${ZARRAY[@]}"; do
-        /usr/gnu/bin/find $f -type f -print0 | /usr/gnu/bin/xargs -0 /usr/gnu/bin/du | sort -n | tail -10 | cut -f2 >> /tmp/file_cleanup_finder.list
+        if [[ ! $(ls $f 2>/dev/null) ]]; then
+            echo "$f is not a valid path. Exiting."
+             rm -rf /tmp/file_cleanup_finder.list
+            exit 1
+        else
+            /usr/gnu/bin/find $f -type f -print0 | /usr/gnu/bin/xargs -0 /usr/gnu/bin/du | sort -n | tail -10 | cut -f2 >> /tmp/file_cleanup_finder.list
+        fi
     done
 fi
 for g in `cat /tmp/file_cleanup_finder.list`; do
