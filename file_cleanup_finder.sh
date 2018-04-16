@@ -16,7 +16,7 @@ if [[ $1 =~ ^(save|silent)$ ]]; then
              rm -rf /tmp/file_cleanup_finder.list
             exit 1
         else
-            /usr/gnu/bin/find $f -type f -print0 | /usr/gnu/bin/xargs -0 /usr/gnu/bin/du | sort -n | tail -10 | cut -f2 >> /tmp/file_cleanup_finder.list
+            /usr/gnu/bin/find $f -path "*/proc/*" -prune -o -path /proc -prune -o -type f -print0 | /usr/gnu/bin/xargs -0 /usr/gnu/bin/du | sort -n | tail -20 | cut -f2 >> /tmp/file_cleanup_finder.list
         fi
     done
 else
@@ -26,7 +26,7 @@ else
              rm -rf /tmp/file_cleanup_finder.list
             exit 1
         else
-            /usr/gnu/bin/find $f -type f -print0 | /usr/gnu/bin/xargs -0 /usr/gnu/bin/du | sort -n | tail -10 | cut -f2 >> /tmp/file_cleanup_finder.list
+            /usr/gnu/bin/find $f -path "*/proc/*" -prune -o -path /proc -prune -o -type f -print0 | /usr/gnu/bin/xargs -0 /usr/gnu/bin/du | sort -n | tail -20 | cut -f2 >> /tmp/file_cleanup_finder.list
         fi
     done
 fi
