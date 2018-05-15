@@ -2,7 +2,7 @@
 ### current date for message file name
 CURDATE=`date +%y%m%d-%H%MA`
 ### edit array to reflect nfs mount locations
-NFSMOUNT=( "/eopf-qacfs01/qa_dsks/qa_edms" )
+NFSMOUNT=( "/mountfoo" )
 ### checks nfs and mount, writes to message file if new failure, writes to log if old
 for a in "${NFSMOUNT[@]}"
     do
@@ -16,7 +16,7 @@ for a in "${NFSMOUNT[@]}"
             elif [[ -z $(mount | awk '{print $1}' | grep $a) ]]; then
                 echo "$a $(date'+%F %H:%M') mount not present" >> /tmp/nfs_fail$NAME.out
             else
-                echo "$a is available again." | mailx -s "ALERT CLEARED: NFS Correction $(hostname) $(date '+%F %H:%M')" hpux_admin@opm.gov
+                echo "$a is available again." | mailx -s "ALERT CLEARED: NFS Correction $(hostname) $(date '+%F %H:%M')" someone@somewhere
                 rm -rf /tmp/nfs_fail$NAME.out
             fi
         else
@@ -48,7 +48,7 @@ if [[ -f /tmp/nfs_message_$CURDATE.txt ]]; then
 fi
 ### email if tmp file exists
 if [[ -f /tmp/nfs_message_$CURDATE.txt ]]; then
-    cat /tmp/nfs_message_$CURDATE.txt | mailx -s "NEW ALERT: NFS Failure $(hostname) $(date '+%F %H:%M')" hpux_admin@opm.gov
+    cat /tmp/nfs_message_$CURDATE.txt | mailx -s "NEW ALERT: NFS Failure $(hostname) $(date '+%F %H:%M')" someone@somewhere
     rm -rf /tmp/nfs_message_$CURDATE.txt
 else
     exit
