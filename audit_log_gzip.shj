@@ -1,5 +1,0 @@
-#!/usr/bin/bash
-AUDITDIR=/var/share/audit
-for i in `find $AUDITDIR -type f -mtime +1 | grep -v '\.gz' | grep -v terminated`; do
-    gzip $i
-done
